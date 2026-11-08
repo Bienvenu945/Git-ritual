@@ -10,8 +10,8 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from core.diagnostics import ErrorKind, explain
-from core.git_ops import Change
+from git_ritual.core.diagnostics import ErrorKind, explain
+from git_ritual.core.git_ops import Change
 
 console = Console()
 _accent = "cyan"

@@ -1,8 +1,8 @@
 import shutil
 import unittest
 
-from core import git_ops
-from core.diagnostics import ErrorKind
+from git_ritual.core import git_ops
+from git_ritual.core.diagnostics import ErrorKind
 from tests.support import GitCase, run_git
 
 

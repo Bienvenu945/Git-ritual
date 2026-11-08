@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from core import git_ops, safety, storage
-from interface import display, prompts
-from workflows import common
-from workflows.errors import Cancelled, FlowError
+from git_ritual.core import git_ops, safety, storage
+from git_ritual.interface import display, prompts
+from git_ritual.workflows import common
+from git_ritual.workflows.errors import Cancelled, FlowError
 
 TOTAL_STEPS = 5
 

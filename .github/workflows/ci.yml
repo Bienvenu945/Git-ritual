@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:        # reused by release.yml: nothing is published before the tests pass
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - run: python -m pip install ruff
+      - run: ruff check .
+
+  test:
+    name: test (${{ matrix.os }}, py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    # "experimental" jobs report failures without turning the whole run red.
+    # Remove the flag from a line once it has been green for a while.
+    continue-on-error: ${{ matrix.experimental || false }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-24.04,     python: "3.9" }    # oldest supported Python
+          - { os: ubuntu-24.04,     python: "3.13" }
+          - { os: ubuntu-24.04-arm, python: "3.13" }   # aarch64, same CPU family as Termux
+          - { os: macos-15,         python: "3.13" }   # Apple Silicon
+          - { os: macos-15-intel,   python: "3.12", experimental: true }
+          - { os: windows-latest,   python: "3.13", experimental: true }
+          - { os: windows-latest,   python: "3.9",  experimental: true }
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Tool versions
+        run: |
+          python --version
+          git --version
+          ssh -V
+      - name: Install (editable)
+        run: python -m pip install -e .
+      - name: Unit tests (real Git, simulated SSH and gh)
+        run: python -m unittest discover -v
+      - name: Smoke tests (entry points and checkout shim)
+        run: |
+          ritual --version
+          python -m git_ritual --version
+          python main.py --version
+          python -c "from git_ritual.interface import menus"
+
+  package:
+    name: package (wheel, sdist, .pyz, install.sh)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - run: python -m pip install build twine
+      - name: Build and check distributions
+        run: |
+          python -m build
+          twine check dist/*
+      - name: Wheel installs in a clean virtualenv
+        run: |
+          python -m venv "$RUNNER_TEMP/clean"
+          "$RUNNER_TEMP/clean/bin/python" -m pip install dist/*.whl
+          "$RUNNER_TEMP/clean/bin/ritual" --version
+          "$RUNNER_TEMP/clean/bin/python" -c "from git_ritual.interface import menus"
+      - name: Single-file .pyz works
+        run: |
+          python packaging/build_pyz.py
+          python dist/ritual.pyz --version
+      - name: install.sh installs, runs and uninstalls
+        env:
+          GIT_RITUAL_VENV: ${{ runner.temp }}/ritual-venv
+          GIT_RITUAL_BIN: ${{ runner.temp }}/ritual-bin
+        run: |
+          bash install.sh --no-pkg
+          "$GIT_RITUAL_BIN/ritual" --version
+          bash install.sh --uninstall
+          test ! -e "$GIT_RITUAL_VENV"
+
+  termux:
+    # EXPERIMENTAL: runs install.sh and the tests inside the official Termux userland image
+    # (Termux paths, pkg, Python layout). It does not emulate the Android kernel or a real
+    # phone, so keep one manual run on a device before each release.
+    name: termux userland (x86_64 image)
+    runs-on: ubuntu-24.04
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+      - name: install.sh + tests inside Termux
+        run: |
+          docker run --rm -v "$PWD:/src:ro" termux/termux-docker:x86_64 bash -c '
+            set -eu
+            cp -r /src "$HOME/ritual"
+            cd "$HOME/ritual"
+            bash install.sh
+            ritual --version
+            "$HOME/.local/share/git-ritual/venv/bin/python" -m unittest discover -v
+          '

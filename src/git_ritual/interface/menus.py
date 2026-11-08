@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from typing import Callable
 
-from core import git_ops, shell, ssh, storage
-from interface import display, prompts
-from utils.validators import ValidationError, validate_branch, validate_commit_message, validate_username
-from workflows import publish, setup, sync
-from workflows.errors import Cancelled, FlowError
+from git_ritual.core import git_ops, shell, ssh, storage
+from git_ritual.interface import display, prompts
+from git_ritual.utils.validators import ValidationError, validate_branch, validate_commit_message, validate_username
+from git_ritual.workflows import publish, setup, sync
+from git_ritual.workflows.errors import Cancelled, FlowError
 
 Handler = Callable[[], None]
 

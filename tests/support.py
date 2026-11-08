@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from core import git_ops
+from git_ritual.core import git_ops
 
 
 def run_git(cwd, *args):
@@ -24,6 +24,7 @@ class GitCase(unittest.TestCase):
         self.home.mkdir()
         patcher = mock.patch.dict(os.environ, {
             "HOME": str(self.home),
+            "USERPROFILE": str(self.home),  # Windows: Path.home() ignores HOME
             "GIT_CONFIG_NOSYSTEM": "1",
             "GIT_CONFIG_GLOBAL": str(self.home / ".gitconfig"),
             "GIT_RITUAL_HOME": str(self.home / ".git-ritual"),

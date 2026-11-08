@@ -7,8 +7,8 @@ import re
 import webbrowser
 from dataclasses import dataclass
 
-from core import shell
-from utils.validators import ValidationError, validate_repo_name, validate_username
+from git_ritual.core import shell
+from git_ritual.utils.validators import ValidationError, validate_repo_name, validate_username
 
 GITHUB_HOST = "github.com"
 _PART = r"[A-Za-z0-9_.-]+"

@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from core import git_ops, github, shell, ssh, storage
-from interface import display, prompts
-from utils.validators import ValidationError, validate_email, validate_name
-from workflows.errors import Cancelled, FlowError
+from git_ritual.core import git_ops, github, shell, ssh, storage
+from git_ritual.interface import display, prompts
+from git_ritual.utils.validators import ValidationError, validate_email, validate_name
+from git_ritual.workflows.errors import Cancelled, FlowError
 
 SSH_KEYS_URL = "https://github.com/settings/ssh/new"
 MAX_SSH_RETRIES = 3

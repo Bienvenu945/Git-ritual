@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "git-ritual"
+dynamic = ["version"]  # single source of truth: src/git_ritual/__init__.py
+description = "Publier un projet sur GitHub sans les galères : init, commit, push et réparation des erreurs Git classiques."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Bienvenu945" }]  # adapt: name and/or email
+keywords = ["git", "github", "ssh", "termux", "cli", "rich"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Natural Language :: French",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: Android",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Version Control :: Git",
+]
+# Keep runtime dependencies PURE PYTHON. A dependency with a C/Rust extension would
+# force Termux users to compile it (clang/rust) and would break the universal wheelhouse.
+dependencies = ["rich>=13.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6", "build>=1.2", "twine>=5"]
+bin = ["pyinstaller>=6.10"]  # optional standalone binaries; never needed on Termux
+
+[project.scripts]
+ritual = "git_ritual.cli:main"
+git-ritual = "git_ritual.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Bienvenu945/git-ritual"  # adapt to your real repository
+Issues = "https://github.com/Bienvenu945/git-ritual/issues"
+
+[tool.setuptools.dynamic]
+version = { attr = "git_ritual.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# ---------------------------------------------------------------- tests
+# The reference runner stays `python -m unittest`; pytest can run the same files.
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+
+# ---------------------------------------------------------------- lint
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+src = ["src", "tests"]
+extend-exclude = ["build", "dist"]
+
+[tool.ruff.lint]
+# Conservative on purpose (syntax errors, undefined names, unused imports, bad comparisons).
+# Enable "I" (imports) and "UP" (pyupgrade) later with `ruff check --fix`.
+select = ["E4", "E7", "E9", "F"]

@@ -3,3 +3,10 @@ __pycache__/
 .venv/
 *.tmp
 .pytest_cache/
+build/
+dist/
+*.egg-info/
+wheelhouse/
+*.pyz
+.ruff_cache/
+.DS_Store

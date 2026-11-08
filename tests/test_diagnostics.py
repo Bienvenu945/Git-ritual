@@ -1,6 +1,6 @@
 import unittest
 
-from core.diagnostics import ErrorKind, classify, explain
+from git_ritual.core.diagnostics import ErrorKind, classify, explain
 
 # Messages réels rencontrés lors d'une publication sur GitHub.
 CASES = {

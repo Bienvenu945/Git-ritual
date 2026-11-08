@@ -36,7 +36,21 @@
 - Ne remplace jamais une clé SSH existante.
 - Accepte aussi d'autres hébergeurs (GitLab, Codeberg…) en collant l'adresse complète.
 
-## Installation (Termux)
+## Installation
+
+Git-Ritual est du Python pur (seule dépendance : `rich`, elle aussi 100 % Python). `git` et `ssh` doivent être présents sur la machine ; `gh` reste facultatif.
+
+| Situation | Commande |
+|---|---|
+| **Termux** (depuis ce dossier ou le zip) | `bash install.sh` |
+| **Termux** (version publiée) | `bash install.sh --pypi` |
+| Linux / macOS / Windows avec `pipx` | `pipx install git-ritual` |
+| Aucune installation (clé USB, zip) | `pip install rich` puis `python main.py` |
+| Un seul fichier | `python ritual.pyz` (voir la page des *Releases*) |
+| Hors ligne | dossier *wheelhouse* + `GIT_RITUAL_PIP_ARGS="--no-index --find-links wheelhouse" bash install.sh --pypi` |
+| Sans Python | binaire de la page des *Releases* (Linux, macOS, Windows ; **pas Termux**) |
+
+### Termux, pas à pas
 
 ```bash
 pkg update && pkg install python git openssh -y
@@ -45,52 +59,56 @@ pkg install gh -y            # facultatif : création de dépôt depuis l'outil
 cd ~
 unzip ~/storage/downloads/git-ritual.zip
 cd git-ritual
-pip install -r requirements.txt
-python main.py
+bash install.sh              # crée un environnement privé et la commande « ritual »
+ritual
 ```
 
-Raccourci pratique : `echo "alias ritual='python ~/git-ritual/main.py'" >> ~/.bashrc` puis `ritual`.
+`install.sh` est relançable : il met à jour une installation existante. `bash install.sh --uninstall` la supprime (vos réglages et vos clés SSH ne sont pas touchés). `--alias` crée un alias au lieu d'un lien dans le PATH.
 
-Au premier lancement, utilisez le menu **5** (assistant) : il configure l'identité et la clé SSH, et mémorise votre pseudo GitHub.
+Au premier lancement, utilisez le menu **5** (assistant) : il configure l'identité et la clé SSH, et mémorise votre pseudo GitHub. Pour `gh` (facultatif) : `gh auth login`.
 
-Pour `gh` (facultatif) : `gh auth login`.
+### Windows
+
+Utilisez **Windows Terminal** (pas l'ancienne console) et installez Git for Windows (qui fournit aussi `ssh`). Puis `pipx install git-ritual`, ou `py -m pip install --user git-ritual`.
 
 ## Architecture
 
 ```
 git-ritual/
-├── main.py
-├── requirements.txt
-├── core/                    # logique pure, sans interface
-│   ├── shell.py             # exécution de commandes (sans shell, messages en anglais)
-│   ├── git_ops.py           # dépôt, commit, remote, push, fusion, conflits
-│   ├── ssh.py               # clés SSH, test de connexion GitHub
-│   ├── github.py            # adresses de dépôts, CLI gh, ouverture de liens
-│   ├── diagnostics.py       # reconnaissance et explication des erreurs
-│   ├── safety.py            # fichiers sensibles, .gitignore
-│   └── storage.py           # réglages et projets récents (JSON)
-├── interface/
-│   ├── display.py           # rendu Rich
-│   ├── prompts.py           # saisies
-│   └── menus.py             # menu principal, réglages, gestion d'erreurs
-├── workflows/               # parcours interactifs
-│   ├── setup.py             # identité + SSH
-│   ├── common.py            # projet, commit, remote, push avec récupération
-│   ├── publish.py           # le rituel complet
-│   └── sync.py              # mise à jour, statut, correction du remote
-├── utils/
-│   ├── validators.py
-│   └── paths.py
-└── tests/
+├── pyproject.toml           # métadonnées, dépendances, commande `ritual`
+├── main.py                  # lanceur sans installation (python main.py)
+├── install.sh               # installateur Termux / Linux / macOS
+├── src/git_ritual/
+│   ├── cli.py               # point d'entrée (ritual, python -m git_ritual)
+│   ├── core/                # logique pure, sans interface
+│   │   ├── shell.py         # exécution de commandes (sans shell, messages en anglais)
+│   │   ├── git_ops.py       # dépôt, commit, remote, push, fusion, conflits
+│   │   ├── ssh.py           # clés SSH, test de connexion GitHub
+│   │   ├── github.py        # adresses de dépôts, CLI gh, ouverture de liens
+│   │   ├── diagnostics.py   # reconnaissance et explication des erreurs
+│   │   ├── safety.py        # fichiers sensibles, .gitignore
+│   │   └── storage.py       # réglages et projets récents (JSON)
+│   ├── interface/           # display.py (Rich), prompts.py, menus.py
+│   ├── workflows/           # setup.py, common.py, publish.py, sync.py
+│   └── utils/               # validators.py, paths.py
+├── tests/
+├── packaging/               # build_pyz.py, build_binary.py (PyInstaller, optionnel)
+└── .github/workflows/       # ci.yml, release.yml
 ```
 
 ## Tests
 
 ```bash
-python -m unittest discover -v
+python -m unittest discover -v      # depuis un simple dossier, sans installation
 ```
 
 Les tests utilisent un vrai Git avec des dépôts locaux temporaires (rejet de push, fusion, conflits). Les appels à SSH et `gh` sont simulés.
+
+## Publier une version (mainteneur)
+
+1. Changer `__version__` dans `src/git_ritual/__init__.py`, committer.
+2. `git tag v1.0.1 && git push origin v1.0.1` (le tag doit valoir `v` + la version).
+3. Le workflow *Release* teste, construit, publie sur PyPI (Trusted Publishing, à configurer une fois sur pypi.org) et crée la release GitHub avec le `.pyz`, le wheelhouse, les binaires et `SHA256SUMS`.
 
 ## Données
 

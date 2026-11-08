@@ -1,11 +1,12 @@
 import os
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
 
-from core import safety, shell, storage
-from utils import paths, validators as v
+from git_ritual.core import safety, shell, storage
+from git_ritual.utils import paths, validators as v
 
 
 class Safety(unittest.TestCase):
@@ -102,12 +103,12 @@ class Shell(unittest.TestCase):
         with self.assertRaises(shell.ToolMissingError) as ctx:
             shell.run(["definitely-not-a-tool-xyz"])
         self.assertEqual(ctx.exception.tool, "definitely-not-a-tool-xyz")
-        r = shell.run(["sleep", "5"], timeout=1)
+        r = shell.run([sys.executable, "-c", "import time; time.sleep(5)"], timeout=1)
         self.assertEqual(r.returncode, 124)
         self.assertIn("Délai dépassé", r.output)
 
     def test_output_and_english_messages(self):
-        r = shell.run(["python3", "-c", "import os,sys; print(os.environ['LC_ALL']); sys.stderr.write('err')"])
+        r = shell.run([sys.executable, "-c", "import os,sys; print(os.environ['LC_ALL']); sys.stderr.write('err')"])
         self.assertEqual(r.output, "err\nC")
         self.assertTrue(r.ok)
 

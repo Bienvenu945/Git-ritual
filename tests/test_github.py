@@ -1,9 +1,9 @@
 import unittest
 from unittest import mock
 
-from core import github as gh
-from core import shell
-from utils.validators import ValidationError
+from git_ritual.core import github as gh
+from git_ritual.core import shell
+from git_ritual.utils.validators import ValidationError
 
 
 class ParseTarget(unittest.TestCase):

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from utils.validators import ValidationError
+from git_ritual.utils.validators import ValidationError
 
 
 def resolve_project_path(

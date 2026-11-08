@@ -6,8 +6,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from core import shell
-from core.diagnostics import ErrorKind, classify
+from git_ritual.core import shell
+from git_ritual.core.diagnostics import ErrorKind, classify
 
 GITHUB_HOST = "github.com"
 _HI = re.compile(r"Hi ([A-Za-z0-9-]+)! You've successfully authenticated")

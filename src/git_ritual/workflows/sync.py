@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from core import git_ops, storage
-from interface import display
-from workflows import common
-from workflows.errors import FlowError
+from git_ritual.core import git_ops, storage
+from git_ritual.interface import display
+from git_ritual.workflows import common
+from git_ritual.workflows.errors import FlowError
 
 
 def _open_repo() -> git_ops.Repo:

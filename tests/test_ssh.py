@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from core import shell, ssh
+from git_ritual.core import shell, ssh
 
 
 def result(code, text=""):
@@ -37,7 +37,7 @@ class SshTesting(unittest.TestCase):
 class Keys(unittest.TestCase):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
-        p = mock.patch.dict(os.environ, {"HOME": self._tmp.name})
+        p = mock.patch.dict(os.environ, {"HOME": self._tmp.name, "USERPROFILE": self._tmp.name})
         p.start()
         self.addCleanup(p.stop)
         self.addCleanup(self._tmp.cleanup)
@@ -67,7 +67,8 @@ class Keys(unittest.TestCase):
     def test_real_generation(self):
         public = ssh.generate_key("me@example.com")
         self.assertTrue(ssh.public_key_text(public).startswith("ssh-ed25519 "))
-        self.assertEqual(oct(public.parent.stat().st_mode & 0o777), "0o700")
+        if os.name != "nt":  # POSIX permission bits do not exist on Windows
+            self.assertEqual(oct(public.parent.stat().st_mode & 0o777), "0o700")
 
 
 if __name__ == "__main__":

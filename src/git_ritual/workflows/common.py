@@ -5,13 +5,13 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from core import git_ops, github, safety, storage
-from core.diagnostics import ErrorKind
-from interface import display, prompts
-from utils.paths import resolve_project_path
-from utils.validators import ValidationError, validate_commit_message, validate_username
-from workflows import setup
-from workflows.errors import Cancelled, FlowError
+from git_ritual.core import git_ops, github, safety, storage
+from git_ritual.core.diagnostics import ErrorKind
+from git_ritual.interface import display, prompts
+from git_ritual.utils.paths import resolve_project_path
+from git_ritual.utils.validators import ValidationError, validate_commit_message, validate_username
+from git_ritual.workflows import setup
+from git_ritual.workflows.errors import Cancelled, FlowError
 
 MAX_PUSH_ATTEMPTS = 3
 

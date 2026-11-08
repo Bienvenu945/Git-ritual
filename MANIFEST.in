@@ -1,0 +1,4 @@
+include LICENSE README.md requirements.txt main.py install.sh
+graft tests
+graft packaging
+global-exclude __pycache__ *.py[cod]

@@ -7,8 +7,8 @@ from typing import Sequence
 from rich.prompt import Confirm, Prompt
 from rich.text import Text
 
-from interface import display
-from interface.display import console
+from git_ritual.interface import display
+from git_ritual.interface.display import console
 
 
 def ask_choice(label: str, choices: Sequence[str], default: str | None = None) -> str:
